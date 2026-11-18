@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vendimia</title>
+<style>
+:root{--noche:#1b0f2e;--vino:#5b1a3a;--oro:#e0b25a;--uva:#8d5fb0;--paja:#efe3c8;--rojo:#ff7a8a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;display:flex;justify-content:center;color:var(--paja);font-family:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;
+background:linear-gradient(180deg,#1b0f2e 0%,#3a1442 45%,#7a2a45 80%,#b9533f 100%) fixed}
+main{width:100%;max-width:460px;padding:18px 16px 40px;text-align:center}
+h1{font-weight:400;font-size:2rem;margin:14px 0 4px;color:var(--oro)}
+p{line-height:1.55;margin:.5em 0}small{opacity:.75}
+#lv{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:12px;margin:22px 0}
+.b{background:rgba(27,15,46,.55);border:1px solid rgba(224,178,90,.35);border-radius:46px 46px 12px 12px;color:var(--paja);padding:18px 6px 14px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center}
+.b b{font-size:2.2rem;font-weight:400;color:var(--oro)}
+.b.ok{background:rgba(91,26,58,.8);border-color:var(--oro)}
+.b:focus-visible,.k:focus-visible,.t:focus-visible,.btn:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+#gr{display:grid;grid-template-columns:repeat(9,1fr);margin:14px auto;border:2px solid var(--oro);background:rgba(27,15,46,.7)}
+.c{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(1.1rem,5.4vw,1.7rem);border:1px solid rgba(239,227,200,.15);cursor:pointer;user-select:none}
+.c.r{border-right:2px solid var(--oro)}.c.d{border-bottom:2px solid var(--oro)}
+.c.f{color:var(--oro);background:rgba(239,227,200,.07);cursor:default}
+.c.m{background:rgba(141,95,176,.35)}.c.s{background:rgba(224,178,90,.35)}.c.x{color:var(--rojo)}
+#np{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.k,.t,.btn{background:rgba(27,15,46,.6);border:1px solid rgba(224,178,90,.4);color:var(--paja);border-radius:10px;padding:12px 0;font:inherit;font-size:1.2rem;cursor:pointer;text-decoration:none;display:inline-block}
+.t{padding:8px 14px;font-size:1rem;float:left}
+.btn{padding:14px 26px;background:var(--oro);color:var(--noche);margin-top:10px}
+#fin{border-top:1px solid rgba(224,178,90,.35);padding-top:16px}
+#ov{position:fixed;inset:0;background:rgba(27,15,46,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:20px}
+#ov[hidden]{display:none}
+#ov b{font-size:9rem;font-weight:400;color:var(--oro);text-shadow:0 0 40px var(--oro);animation:glow 1.4s ease-out}
+@keyframes glow{from{opacity:0;transform:scale(.4) rotate(-8deg);text-shadow:0 0 0 var(--oro)}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#ov b{animation:none}}
+#rs{margin-top:34px;background:none;border:0;color:var(--paja);opacity:.5;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1 id="ti">Vendimia</h1>
+<section id="h">
+<p id="hi"></p>
+<div id="lv"></div>
+<div id="fin" hidden>
+<p id="msg"></p>
+<a id="go" class="btn" target="_blank" rel="noopener">Abrir mi regalo</a>
+<p><small>La contraseña del PDF es la palabra que formaron tus letras.</small></p>
+</div>
+<button id="rs">Reiniciar progreso</button>
+</section>
+<section id="p" hidden>
+<button id="bk" class="t">Volver</button><div style="clear:both"></div>
+<div id="gr"></div>
+<div id="np"></div>
+</section>
+<div id="ov" hidden></div>
+</main>
+<script src="data.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const T=['Uva tierna','Primera cosecha','Reserva','Gran reserva','Etiqueta de oro','Cosecha tardía','Edición especial','Joya de la casa'];
+let S;try{S=JSON.parse(localStorage.getItem('vd'))}catch(e){}
+S=S||{g:{},l:{}};
+const save=()=>{try{localStorage.setItem('vd',JSON.stringify(S))}catch(e){}};
+const unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function abrir(L,sol){
+  try{
+    const k=await crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sol+L.i)),'AES-GCM',false,['decrypt']);
+    return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb(L.v)},k,unb(L.c)));
+  }catch(e){return null}
+}
+const R=i=>i/9|0,C=i=>i%9,B=i=>(i/27|0)*3+(i%9/3|0);
+let cur,P,A,sel=-1;
+function home(){
+  $('#h').hidden=false;$('#p').hidden=true;
+  $('#ti').textContent='Feliz cumpleaños, '+D.n;
+  $('#hi').textContent='Cada barrica guarda una letra. Resuelve su sudoku para abrirla; juntas forman la palabra que abre tu regalo.';
+  $('#lv').innerHTML=D.L.map((L,k)=>`<button class="b${S.l[L.i]?' ok':''}" data-k="${k}"><small>${T[k%T.length]}</small><b>${S.l[L.i]||'?'}</b></button>`).join('');
+  const all=D.L.every(L=>S.l[L.i]);
+  $('#fin').hidden=!all;
+  if(all){$('#msg').textContent=D.m;$('#go').href=D.f}
+}
+function play(k){
+  cur=D.L[k];P=cur.p;A=(S.g[cur.i]||cur.p).split('').map(Number);sel=-1;
+  if(S.l[cur.i])return;
+  $('#h').hidden=true;$('#p').hidden=false;draw();
+}
+function draw(){
+  const bad=new Set();
+  for(let i=0;i<81;i++)if(A[i])for(let j=0;j<81;j++)if(j!=i&&A[j]==A[i]&&(R(i)==R(j)||C(i)==C(j)||B(i)==B(j)))bad.add(i);
+  $('#gr').innerHTML=A.map((v,i)=>`<div class="c${P[i]!='0'?' f':''}${i==sel?' s':''}${sel>=0&&v&&A[sel]==v&&i!=sel?' m':''}${bad.has(i)?' x':''}${i%9==2||i%9==5?' r':''}${(i>=18&&i<27)||(i>=45&&i<54)?' d':''}" data-i="${i}">${v||''}</div>`).join('');
+}
+async function poner(v){
+  if(sel<0||P[sel]!='0')return;
+  A[sel]=v;S.g[cur.i]=A.join('');save();draw();
+  if(!A.includes(0)){
+    const t=await abrir(cur,A.join(''));
+    if(t){S.l[cur.i]=t;save();delete S.g[cur.i];
+      $('#ov').innerHTML=`<b>${t}</b><p>Barrica abierta. Toca para seguir.</p>`;$('#ov').hidden=false}
+    else{$('#ov').innerHTML='<p>Algo no cuadra: hay un número repetido en alguna fila, columna o cuadro.<br>Toca para seguir revisando.</p>';$('#ov').hidden=false;$('#ov').dataset.stay=1}
+  }
+}
+$('#lv').onclick=e=>{const b=e.target.closest('.b');if(b)play(+b.dataset.k)};
+$('#gr').onclick=e=>{const c=e.target.closest('.c');if(c){sel=+c.dataset.i;draw()}};
+$('#np').innerHTML=[1,2,3,4,5,6,7,8,9,0].map(n=>`<button class="k" data-n="${n}" aria-label="${n||'borrar'}">${n||'⌫'}</button>`).join('');
+$('#np').onclick=e=>{const b=e.target.closest('.k');if(b)poner(+b.dataset.n)};
+$('#bk').onclick=home;
+$('#ov').onclick=()=>{const stay=$('#ov').dataset.stay;$('#ov').hidden=true;delete $('#ov').dataset.stay;if(!stay)home()};
+$('#rs').onclick=()=>{if(confirm('¿Borrar todo el progreso?')){S={g:{},l:{}};save();home()}};
+document.onkeydown=e=>{if($('#p').hidden)return;
+  if(e.key>='0'&&e.key<='9')poner(+e.key);else if(e.key=='Backspace'||e.key=='Delete')poner(0);
+  else if(sel>=0){const d={ArrowLeft:-1,ArrowRight:1,ArrowUp:-9,ArrowDown:9}[e.key];if(d&&sel+d>=0&&sel+d<81){sel+=d;draw()}}};
+home();
+</script>
+</body>
+</html>
