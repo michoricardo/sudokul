@@ -49,7 +49,7 @@ p{line-height:1.55;margin:.5em 0}small{opacity:.75}
 <button id="rs">Reiniciar progreso</button>
 </section>
 <section id="p" hidden>
-<button id="bk" class="t">Volver</button><div style="clear:both"></div>
+<button id="bk" class="t">Volver</button><button id="cl" class="t" style="float:right">Borrar este sudoku</button><div style="clear:both"></div>
 <div id="gr"></div>
 <div id="np"></div>
 </section>
@@ -85,19 +85,26 @@ function play(k){
   if(S.l[cur.i])return;
   $('#h').hidden=true;$('#p').hidden=false;draw();
 }
-function draw(){
+function conf(){
   const bad=new Set();
   for(let i=0;i<81;i++)if(A[i])for(let j=0;j<81;j++)if(j!=i&&A[j]==A[i]&&(R(i)==R(j)||C(i)==C(j)||B(i)==B(j)))bad.add(i);
+  return bad;
+}
+function draw(){
+  const bad=conf();
   $('#gr').innerHTML=A.map((v,i)=>`<div class="c${P[i]!='0'?' f':''}${i==sel?' s':''}${sel>=0&&v&&A[sel]==v&&i!=sel?' m':''}${bad.has(i)?' x':''}${i%9==2||i%9==5?' r':''}${(i>=18&&i<27)||(i>=45&&i<54)?' d':''}" data-i="${i}">${v||''}</div>`).join('');
 }
 async function poner(v){
   if(sel<0||P[sel]!='0')return;
   A[sel]=v;S.g[cur.i]=A.join('');save();draw();
   if(!A.includes(0)){
+    const ov=$('#ov'),aviso=h=>{ov.innerHTML='<p>'+h+'<br><small>Toca para seguir.</small></p>';ov.dataset.stay=1;ov.hidden=false};
+    if(conf().size)return aviso('Hay números repetidos (en rojo) en alguna fila, columna o cuadro.');
+    if(!(window.crypto&&crypto.subtle))return aviso('Este navegador no puede abrir la barrica. Entra por la dirección https de GitHub Pages, no desde un archivo ni desde http.');
     const t=await abrir(cur,A.join(''));
     if(t){S.l[cur.i]=t;save();delete S.g[cur.i];
-      $('#ov').innerHTML=`<b>${t}</b><p>Barrica abierta. Toca para seguir.</p>`;$('#ov').hidden=false}
-    else{$('#ov').innerHTML='<p>Algo no cuadra: hay un número repetido en alguna fila, columna o cuadro.<br>Toca para seguir revisando.</p>';$('#ov').hidden=false;$('#ov').dataset.stay=1}
+      ov.innerHTML=`<b>${t}</b><p>Barrica abierta. Toca para seguir.</p>`;ov.hidden=false}
+    else aviso('La cuadrícula cumple las reglas pero no abre la barrica. Recarga con Ctrl+F5 por si quedó guardada una versión vieja, y si sigue igual usa «Borrar este sudoku».');
   }
 }
 $('#lv').onclick=e=>{const b=e.target.closest('.b');if(b)play(+b.dataset.k)};
@@ -105,6 +112,7 @@ $('#gr').onclick=e=>{const c=e.target.closest('.c');if(c){sel=+c.dataset.i;draw(
 $('#np').innerHTML=[1,2,3,4,5,6,7,8,9,0].map(n=>`<button class="k" data-n="${n}" aria-label="${n||'borrar'}">${n||'⌫'}</button>`).join('');
 $('#np').onclick=e=>{const b=e.target.closest('.k');if(b)poner(+b.dataset.n)};
 $('#bk').onclick=home;
+$('#cl').onclick=()=>{if(!confirm('¿Borrar tus números de este sudoku?'))return;delete S.g[cur.i];save();A=P.split('').map(Number);sel=-1;draw()};
 $('#ov').onclick=()=>{const stay=$('#ov').dataset.stay;$('#ov').hidden=true;delete $('#ov').dataset.stay;if(!stay)home()};
 $('#rs').onclick=()=>{if(confirm('¿Borrar todo el progreso?')){S={g:{},l:{}};save();home()}};
 document.onkeydown=e=>{if($('#p').hidden)return;
