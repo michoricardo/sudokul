@@ -8,8 +8,7 @@ Uso:
     python cifrar_pdf.py propuesta.pdf v7k2.pdf
 
   - propuesta.pdf  es tu PDF original (sin contraseña)
-  - v7k2.pdf       es el PDF cifrado que subirás al repositorio
-                   (usa el mismo nombre que escribiste en forge.html)
+  - v7k2.pdf       es el PDF cifrado que le entregarás tú (el PDF NO va al repositorio)
 
 La contraseña se pide al ejecutar el script y se guarda en MAYÚSCULAS (igual que las letras
 que muestra el juego). No queda escrita en ningún archivo.
