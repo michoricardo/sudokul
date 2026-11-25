@@ -1,4 +1,5 @@
 # Misión tortuga ninja
+<img width="447" height="447" alt="image" src="https://github.com/user-attachments/assets/f60a4c70-704c-4660-a172-527c342f0cf5" />
 
 Para mi tortuguita ninja, en su cumpleaños. No hay nada que instalar: solo abre la página y empieza.
 
@@ -16,5 +17,6 @@ Si te equivocas en un sudoku, puedes borrarlo con el botón de arriba y empezarl
 - Es un PDF con contraseña, cifrado con AES-256. Sin la contraseña es solo un archivo ilegible.
 - El PDF no está en esta página: te lo mandé aparte. La contraseña solo se descubre aquí.
 - Las letras de las barricas también están selladas. Cada una se cifró usando la solución de su sudoku como llave, así que la letra solo se puede abrir resolviendo el sudoku.
+- La contraseña se pone en MAYÚSCULAS
 
 Feliz cumpleaños, tortuguita. 🐢🍷
